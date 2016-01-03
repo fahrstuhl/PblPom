@@ -97,6 +97,10 @@ void pomOnMenuSelect(int index, void *context) {
             
         case PomMenuShowClock:
             s->showClock = !s->showClock;
+            if (s->showClock)
+                layer_add_child(window_get_root_layer(app.mainWindow), status_bar_layer_get_layer(app.statusBarLayer));
+            else
+                layer_remove_from_parent(status_bar_layer_get_layer(app.statusBarLayer));
             break;
 
         case PomMenuAutoContinue:
@@ -224,7 +228,7 @@ void pomOnMenuWindowLoad(struct Window *menuWindowRef) {
 
 /** Window unload handler for settings window. */
 void pomOnMenuWindowUnload(struct Window *menuWindowRef) {
-    pomSetState(app.state); //redraw in case language changed
+    pomSetState(app.timer.state); //redraw in case language changed
 }
 
 /** Initialize everything needed for settings menus. Called by pomOnInit(). */
