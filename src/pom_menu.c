@@ -231,7 +231,6 @@ void pomOnMenuWindowUnload(struct Window *menuWindowRef) {
 void pomInitMenuModule() {
     // setup window with all the settings in it
     app.menuWindow = window_create();
-    window_set_fullscreen(app.menuWindow, true);
     window_set_background_color(app.menuWindow, GColorWhite);
     window_set_window_handlers(app.menuWindow, (WindowHandlers){
         .load = pomOnMenuWindowLoad,

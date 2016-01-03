@@ -5,6 +5,8 @@
   "companyName": "Partlyhuman",
   "versionCode": 2.7,
   "versionLabel": "2.7",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite"],
   "watchapp": {
     "watchface": false
   },

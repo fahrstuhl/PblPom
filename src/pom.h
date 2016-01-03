@@ -35,7 +35,8 @@ typedef struct {
     Window *menuWindow;
     TextLayer *workingTextLayer;
     TextLayer *timeTextLayer;
-    InverterLayer *inverterLayer;
+    StatusBarLayer *statusBarLayer;
+    Layer *batteryLayer;
 
 } PomApplication;
 

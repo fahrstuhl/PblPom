@@ -56,11 +56,6 @@ void pomMoveTextLayers() {
 void pomSetState(PomState newState) {
     app.state = newState;
     
-    // recalculate window size
-    window_set_fullscreen(app.mainWindow, !app.settings.showClock);
-    layer_mark_dirty(window_get_root_layer(app.mainWindow));
-    windowSize = layer_get_frame(window_get_root_layer(app.mainWindow)).size;
-    
     switch (newState) {
         case PomStateWorking:
             app.totalTicks = app.ticksRemaining = app.settings.workTicks;
@@ -83,7 +78,6 @@ void pomSetState(PomState newState) {
             break;
             
         case PomStateReady:
-            layer_set_bounds(inverter_layer_get_layer(app.inverterLayer), GRectZero);
             text_layer_set_text(app.workingTextLayer, POM_TEXT_READY[app.settings.language]);
             static char pomCounterString[64];
             snprintf(pomCounterString, ARRAY_LENGTH(pomCounterString), POM_TEXT_POM_COUNTER[app.settings.language], app.completedPoms);
@@ -125,15 +119,16 @@ void pomOnTick(struct tm *tick_time, TimeUnits units_changed) {
     }
     
     bool isWorking = (app.state == PomStateWorking);
-    bool isResting = (app.state == PomStateResting);
+    //bool isResting = (app.state == PomStateResting);
 
     // heartbeat
     if (isWorking && app.settings.vibrateWhileWorking && (app.ticksRemaining % app.settings.vibrateTicks) == 0) {
         vibes_enqueue_custom_pattern(VIBRATE_MINIMAL);
     }
     
+    // TODO deprecated, find different implemenation
     // resize inverter
-    float pctRemaining = (app.ticksRemaining + 0.0) / app.totalTicks;
+/*  float pctRemaining = (app.ticksRemaining + 0.0) / app.totalTicks;
     GRect inverterFrame = GRect(0, 0, windowSize.w, 0);
     if (isWorking) {
         inverterFrame.size.h = (1.0 - pctRemaining) * windowSize.h;
@@ -142,7 +137,7 @@ void pomOnTick(struct tm *tick_time, TimeUnits units_changed) {
         inverterFrame.size.h = pctRemaining * windowSize.h;
     }
     layer_set_frame(inverter_layer_get_layer(app.inverterLayer), inverterFrame);
-    
+*/    
     // set timer text
     formatTime(gTimeString, app.ticksRemaining);
     text_layer_set_text(app.timeTextLayer, gTimeString);
@@ -174,6 +169,18 @@ void pomMainWindowClickProvider(void *context) {
     window_single_click_subscribe(BUTTON_ID_UP, pomOnMainWindowUpOrDownClick);
     window_single_click_subscribe(BUTTON_ID_DOWN, pomOnMainWindowUpOrDownClick);
     window_single_click_subscribe(BUTTON_ID_SELECT, pomOnMainWindowSelectClick);
+}
+
+void pomUpdateBatteryLayer(Layer *layer, GContext *ctx) {
+    // Emulator battery meter on Aplite
+    graphics_context_set_stroke_color(ctx, GColorWhite);
+    graphics_draw_rect(ctx, GRect(126, 4, 14, 8));
+    graphics_draw_line(ctx, GPoint(140, 6), GPoint(140, 9));
+
+    BatteryChargeState state = battery_state_service_peek();
+    int width = (int)(float)(((float)state.charge_percent / 100.0F) * 10.0F);
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_fill_rect(ctx, GRect(128, 6, width, 4), 0, GCornerNone);
 }
 
 /** App initialization. */
@@ -209,11 +216,12 @@ void pomStartup() {
     text_layer_set_font(app.timeTextLayer, fonts_get_system_font(FONT_KEY_FONT_FALLBACK));
     text_layer_set_background_color(app.timeTextLayer, GColorClear);
     
-    app.inverterLayer = inverter_layer_create(GRectZero);
-    
+    app.statusBarLayer = status_bar_layer_create();
+    app.batteryLayer = layer_create(GRect(0, 0, 144, STATUS_BAR_LAYER_HEIGHT));
+    layer_set_update_proc(app.batteryLayer, pomUpdateBatteryLayer);
+
     layer_add_child(window_get_root_layer(app.mainWindow), text_layer_get_layer(app.workingTextLayer));
     layer_add_child(window_get_root_layer(app.mainWindow), text_layer_get_layer(app.timeTextLayer));
-    layer_add_child(window_get_root_layer(app.mainWindow), inverter_layer_get_layer(app.inverterLayer));
 
 #if USE_CONSOLE
     __console_layer = text_layer_create(GRect(0, 28, 144, 140));
@@ -229,6 +237,10 @@ void pomStartup() {
     if (!pomLoadCookies()) {
         LOG("Settings not found, using defaults");
         app.settings = defaultSettings;
+    }
+    if (app.settings.showClock) {
+        layer_add_child(window_get_root_layer(app.mainWindow), status_bar_layer_get_layer(app.statusBarLayer));
+        layer_add_child(window_get_root_layer(app.mainWindow), app.batteryLayer);
     }
 
     pomSetState(PomStateReady);
