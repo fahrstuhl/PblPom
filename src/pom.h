@@ -21,21 +21,26 @@ typedef struct {
     bool annoyAfterRestExceeded;
 } PomSettings;
 
+typedef struct {
+    unsigned int completedPoms;
+    int lastPomHour;
+    uint64_t end;
+    PomState state;
+} PomTimer;
 
 typedef struct {
 
     PomSettings settings;
-    
-    unsigned int completedPoms;
+    PomTimer timer;
     int ticksRemaining;
     int totalTicks;
-    PomState state;
     
     Window *mainWindow;
     Window *menuWindow;
     TextLayer *workingTextLayer;
     TextLayer *timeTextLayer;
-    InverterLayer *inverterLayer;
+    StatusBarLayer *statusBarLayer;
+    Layer *batteryLayer;
 
 } PomApplication;
 
