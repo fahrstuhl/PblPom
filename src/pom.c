@@ -53,14 +53,14 @@ void pomUpdateTextLayers() {
             text_layer_set_text(app.workingTextLayer, POM_TEXT_REST[app.settings.language]);
             formatTime(gTimeString, app.ticksRemaining);
             text_layer_set_text(app.timeTextLayer, gTimeString);
-            moveTextLayers(windowSize.h - 65 - 2, windowSize.h - 20 - 2);
+            moveTextLayers(2, 45);
             break;
         default:
             break;
     }
-    GRect frame = layer_get_frame(text_layer_get_layer(app.timeTextLayer));
-    frame.size.w = (app.timer.state == PomStateReady)? 80 : 30;
-    layer_set_frame(text_layer_get_layer(app.timeTextLayer), frame);
+//    GRect frame = layer_get_frame(text_layer_get_layer(app.timeTextLayer));
+//    frame.size.w = (app.timer.state == PomStateReady)? 80 : 30;
+//    layer_set_frame(text_layer_get_layer(app.timeTextLayer), frame);
 }
 
 /** Change the state between ready, working, and resting. */
@@ -247,8 +247,8 @@ void pomStartup() {
     text_layer_set_font(app.workingTextLayer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
     text_layer_set_background_color(app.workingTextLayer, GColorClear);
     
-    app.timeTextLayer = text_layer_create(GRect(4, 45, 80, 30));
-    text_layer_set_font(app.timeTextLayer, fonts_get_system_font(FONT_KEY_FONT_FALLBACK));
+    app.timeTextLayer = text_layer_create(GRect(4, 45, windowSize.w, 30));
+    text_layer_set_font(app.timeTextLayer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
     text_layer_set_background_color(app.timeTextLayer, GColorClear);
 
     app.statusBarLayer = status_bar_layer_create();
