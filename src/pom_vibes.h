@@ -1,7 +1,7 @@
 #pragma once
 #include <pebble.h>
 
-static const uint32_t VIBRATE_PAT_MINIMAL[] = {30,};
+static const uint32_t VIBRATE_PAT_MINIMAL[] = {50,};
 static const VibePattern VIBRATE_MINIMAL = {
     .durations = VIBRATE_PAT_MINIMAL,
     .num_segments = ARRAY_LENGTH(VIBRATE_PAT_MINIMAL),
