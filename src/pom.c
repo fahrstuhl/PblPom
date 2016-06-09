@@ -299,7 +299,7 @@ void pomShutdown() {
         time_t wakeupTime = time(NULL) + app.ticksRemaining;
         wakeup_schedule(wakeupTime, 0, true);
     }
-    pomSaveTimer();
+//    pomSaveTimer();
     pomSaveCookies();
     window_destroy(app.mainWindow);
     window_destroy(app.menuWindow);
