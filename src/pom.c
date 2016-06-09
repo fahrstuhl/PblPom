@@ -270,6 +270,8 @@ void pomStartup() {
     pomInitTimerModule();
 
     app.settings = defaultSettings;
+    app.timer = defaultTimer;
+    /* TODO implement reset
     if (!pomLoadTimer()) {
         LOG("Timer data not found, using defaults");
         app.timer = defaultTimer;
@@ -280,6 +282,7 @@ void pomStartup() {
             app.timer.completedPoms = 0;
         }
     }
+    */
     tick_timer_service_subscribe(SECOND_UNIT, pomOnTick);
     if (!pomLoadCookies()) {
         LOG("Settings not found, using defaults");
